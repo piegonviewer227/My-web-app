@@ -16,12 +16,17 @@ jobs:
 
       - name: Get short SHA
         id: vars
-        run: echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+        shell: pwsh
+        run: |
+          $short_sha = git rev-parse --short HEAD
+          "short_sha=$short_sha" >> $env:GITHUB_OUTPUT
 
       - name: Build Docker image
+        shell: pwsh
         run: docker build -t my-web-app:${{ steps.vars.outputs.short_sha }} .
 
       - name: Save image as a .tar file
+        shell: pwsh
         run: docker save my-web-app:${{ steps.vars.outputs.short_sha }} -o my-web-app-${{ steps.vars.outputs.short_sha }}.tar
 
       - name: Create GitHub Release and upload image
@@ -30,5 +35,4 @@ jobs:
           tag_name: v-${{ steps.vars.outputs.short_sha }}
           name: Release ${{ steps.vars.outputs.short_sha }}
           files: my-web-app-${{ steps.vars.outputs.short_sha }}.tar
-          
           
